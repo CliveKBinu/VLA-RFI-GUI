@@ -57,15 +57,15 @@ except PermissionError as error:
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = "qgcxz-*2pn+=6k*8=_4c_1agt6u5a7p&w^3di=h2q$k)7k=bke"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env("DEBUG")
+# DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+ALLOWED_HOSTS = []
 
 # set up the email logs
-ADMINS = getaddresses([env("DJANGO_ADMINS")])
+# ADMINS = getaddresses([env("DJANGO_ADMINS")])
 
 # CONN_MAX_AGE = None
 
@@ -120,10 +120,20 @@ WSGI_APPLICATION = "rfi_query.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": env.db("DJANGO_DB"),
+#     "legacy_rfi": env.db("LEGACY_RFI_DB"),
+# }
+
 DATABASES = {
-    "default": env.db("DJANGO_DB"),
-    "legacy_rfi": env.db("LEGACY_RFI_DB"),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'database/db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+
+    }
 }
+
 
 DATABASE_ROUTERS = [
     "rfi_query.db_routers.LegacyRfiRouter",
@@ -167,22 +177,22 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "/static/"
-STATIC_ROOT = env("STATIC_ROOT")
+# STATIC_ROOT = env("STATIC_ROOT")
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-APPEND_SLASH = True
+# APPEND_SLASH = True
 ### Non-Django Settings
 
-REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ]
-}
+# REST_FRAMEWORK = {
+#     # Use Django's standard `django.contrib.auth` permissions,
+#     # or allow read-only access for unauthenticated users.
+#     "DEFAULT_PERMISSION_CLASSES": [
+#         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
+#     ]
+# }
 
 ### DJANGO-DEBUG-TOOLBAR
 INTERNAL_IPS = ["127.0.0.1", "192.33.116.243"]

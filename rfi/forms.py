@@ -61,6 +61,17 @@ class QueryForm(forms.Form):
     ("Rcvr26_40","Ka-Band"),
     ("Rcvr40_52","Q-Band"))
 
+    # friendly_names = (
+    # ("P_Band_Reciever"),
+    # ("A_Band_Reciever"),
+    # ("C_Band_Reciever"),
+    # ("K_Band_Recieverd"),
+    # ("L_Band_Recieverand"),
+    # ("Q_Band_Reciever"),
+    # ("S_Band_Recieverand"),
+    # ("U_Band_Recieverand"),
+    # ("X_Band_Recievernd"))
+
     receivers = forms.MultipleChoiceField(
         choices= friendly_names, label="Receivers", required=True
     )

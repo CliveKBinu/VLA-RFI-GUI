@@ -7,11 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>602</width>
-    <height>633</height>
+    <height>663</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GBT_RFI_DATA_QUERY</string>
+   <string>VLA_RFI_DATA_QUERY</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="label_29">
@@ -111,7 +111,7 @@
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>490</y>
+      <y>530</y>
       <width>291</width>
       <height>31</height>
      </rect>
@@ -136,7 +136,7 @@
     <property name="geometry">
      <rect>
       <x>230</x>
-      <y>520</y>
+      <y>560</y>
       <width>191</width>
       <height>61</height>
      </rect>
@@ -214,7 +214,7 @@
      </font>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prime Focus 1 -&amp;gt; PF342: 290-395 MHz &lt;/p&gt;&lt;p&gt;Prime Focus 1 -&amp;gt; PF800: 680-920 MHz&lt;/p&gt;&lt;p&gt;Rcvr1_2 -&amp;gt; L-band: 1.15-1.73 GHz&lt;/p&gt;&lt;p&gt;Rcvr2_3 -&amp;gt; S-band: 1.73-2.60 GHz&lt;/p&gt;&lt;p&gt;Rcvr4_6 -&amp;gt; C-band: 3.8-7.8 GHz&lt;/p&gt;&lt;p&gt;Rcvr8_10 -&amp;gt; X-band: 7.8-11.6 GHz&lt;/p&gt;&lt;p&gt;Rcvr12_18 -&amp;gt; Ku-band: 12.0-15.4 GHz&lt;/p&gt;&lt;p&gt;RcvrArray18_26 -&amp;gt; K-band Focal Plane Array: 18.0-27.5 GHz&lt;/p&gt;&lt;p&gt;Rcvr26_40 -&amp;gt; Ka-band: 26.0-39.5 GHz&lt;/p&gt;&lt;p&gt;Rcvr40_52 -&amp;gt; Q-band: 39.2-50.5 GHz&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;P_Band_Reciever -&amp;gt; P-band: 250-500 MHz&lt;/p&gt;&lt;p&gt;L_Band_Reciever -&amp;gt; L-band: 1.15-1.73 GHz&lt;/p&gt;&lt;p&gt;S_Band_Reciever -&amp;gt; S-band: 1.73-4 GHz&lt;/p&gt;&lt;p&gt;C_Band_Reciever -&amp;gt; C-band: 3.8-7.8 GHz&lt;/p&gt;&lt;p&gt;X_Band_Reciever -&amp;gt; X-band: 7.8-11.6 GHz&lt;/p&gt;&lt;p&gt;U_Band_Reciever -&amp;gt; Ku-band: 12.0-18 GHz&lt;/p&gt;&lt;p&gt;K_Band_Reciever -&amp;gt; K-band: 18.0-27 GHz&lt;/p&gt;&lt;p&gt;A_Band_Reciever -&amp;gt; Ka-band: 27.0-39.5 GHz&lt;/p&gt;&lt;p&gt;Q_Band_Reciever -&amp;gt; Q-band: 39.2-50.5 GHz&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="selectionMode">
      <enum>QAbstractItemView::MultiSelection</enum>
@@ -307,6 +307,40 @@
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
+   <widget class="QComboBox" name="polarization">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>470</y>
+      <width>291</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>DejaVu Serif</family>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text" stdset="0">
+     <string>Polarization</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>LL</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>RR</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Averaged</string>
+     </property>
+    </item>
+   </widget>
    <widget class="QDateEdit" name="end_date">
     <property name="geometry">
      <rect>
@@ -358,7 +392,7 @@
     <property name="geometry">
      <rect>
       <x>190</x>
-      <y>465</y>
+      <y>500</y>
       <width>301</width>
       <height>31</height>
      </rect>
@@ -379,6 +413,28 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>470</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+     <family>DejaVu Serif</family>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Polarization</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -386,7 +442,7 @@
      <x>0</x>
      <y>0</y>
      <width>602</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

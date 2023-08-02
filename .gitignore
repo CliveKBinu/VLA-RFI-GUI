@@ -1,3 +1,11 @@
 __pycache__
 *.egg-info
 .env
+
+db_og.sqlite3
+db.sqlite3
+test*
+
+RFI_VLA_Sample_Merged
+gbt_rfi_gui/RFI_GUI_og.ui
+rfi/models_backup.py

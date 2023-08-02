@@ -27,7 +27,24 @@ from rfi.models import Frequency, Scan
 qtCreatorFile = os.path.dirname(__file__) + "/RFI_GUI.ui"
 Ui_MainWindow, QtBaseClass = loadUiType(qtCreatorFile)
 
+#------------------------------------------------------------------------------------------------------
 
+def average_func(data):
+    sorted = data.sort_values(by=['frequency'])
+    sorted = sorted.reset_index(drop=True)
+
+
+    mean_intensity = ((sorted['intensity']+sorted['intensity'].shift(-1))/2)[::2].reset_index(drop=True)
+    mean_intensity
+
+    sorted.drop_duplicates(subset='frequency',keep='first', inplace=True)
+    sorted.reset_index(drop=True,inplace=True)
+
+    sorted['intensity_mean'] = mean_intensity
+
+    return sorted
+
+#------------------------------------------------------------------------------------------------------
 class Window(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtWidgets.QWidget.__init__(self)
@@ -41,15 +58,16 @@ class Window(QMainWindow, Ui_MainWindow):
         self.receivers.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         # recievers need to be in a sorted list
         rcvrs = [
-            "Prime Focus 1",
             "L-band",
             "S-band",
             "C-band",
             "X-band",
-            "Ku-band",
-            "K-band FPA",
-            "Ka-band",
+            "K-band",
+            "P-band",
+            "A-band",
             "Q-band",
+            "Ku-band",
+
         ]
         self.receivers.addItems(rcvrs)
 
@@ -69,6 +87,7 @@ class Window(QMainWindow, Ui_MainWindow):
         # connect menus
         self.actionQuit.triggered.connect(self.menuQuit)
         self.actionAbout.triggered.connect(self.menuAbout)
+
 
     def get_scans(self, receivers, target_date, start_frequency, end_frequency):
         # don't want to look at dates with no data, find the most recent session date
@@ -100,19 +119,32 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return qs
 
-    def do_plot(self, receivers, start_date, end_date, start_frequency, end_frequency):
+    def do_plot(self, receivers, start_date, end_date, start_frequency, end_frequency,polarization):
         # don't want to look at dates with no data, find the most recent session date
-        most_recent_session_prior_to_target_datetime = (
-            Scan.objects.filter(datetime__lte=end_date, frontend__name__in=receivers)
-            .order_by("-datetime")
-            .first()
-            .datetime
-        )
+        if polarization != 'Averaged':
+            most_recent_session_prior_to_target_datetime = (
+                Scan.objects.filter(datetime__lte=end_date, frontend__name__in=receivers,polarization__name=polarization)
+                .order_by("-datetime")
+                .first()
+                .datetime
+            )
+        else:
+            most_recent_session_prior_to_target_datetime = (
+                Scan.objects.filter(datetime__lte=end_date, frontend__name__in=receivers)
+                .order_by("-datetime")
+                .first()
+                .datetime
+            )
 
         qs = Frequency.objects.all()
 
         if receivers:
             qs = qs.filter(scan__frontend__name__in=receivers)
+
+        if polarization != 'Averaged':
+            qs = qs.filter(scan__polarization__name=polarization)
+        else:
+            pass
 
         if end_date:
             if start_date > most_recent_session_prior_to_target_datetime:
@@ -144,6 +176,7 @@ class Window(QMainWindow, Ui_MainWindow):
             start_frequency = data["frequency"].min()
         if not end_frequency:
             end_frequency = data["frequency"].max()
+
         if not data.empty:
             # line plot
             self.make_plot(
@@ -153,10 +186,11 @@ class Window(QMainWindow, Ui_MainWindow):
                 start_date,
                 start_frequency,
                 end_frequency,
+                polarization=polarization
             )
             # color map graph, but only if there is more than one day with data
             unique_days = data.scan__datetime.unique()
-            self.make_color_plot(data, unique_days, receivers, end_date, start_date)
+            self.make_color_plot(data, unique_days, receivers, end_date, start_date,polarization=polarization)
 
             # option to save the data from the plot
             if self.saveData.isChecked():
@@ -173,21 +207,38 @@ class Window(QMainWindow, Ui_MainWindow):
             )
 
     def make_plot(
-        self, receivers, data, end_date, start_date, start_frequency, end_frequency
+        self, receivers, data, end_date, start_date, start_frequency, end_frequency,polarization
     ):
         # make a new object with the average intensity for the 2D plot
-        mean_data_intens = data.groupby(
-            ["scan__datetime", "frequency", "scan__session__name"]
-        ).agg({"intensity": ["mean"]})
-        mean_data_intens.columns = ["intensity_mean"]
-        mean_data = mean_data_intens.reset_index()
-        # sort values so the plot looks better, this has nothing to do with the actual data
-        sorted_mean_data = mean_data.sort_values(by=["frequency", "intensity_mean"])
+        if polarization != 'Averaged':
+            mean_data_intens = data.groupby(
+                ["scan__datetime", "frequency", "scan__session__name"]
+            ).agg({"intensity": ["mean"]})
+            mean_data_intens.columns = ["intensity_mean"]
+            mean_data = mean_data_intens.reset_index()
+            # sort values so the plot looks better, this has nothing to do with the actual data
+            sorted_mean_data = mean_data.sort_values(by=["frequency", "intensity_mean"])
 
+
+        else:
+            mean_data_intens = data.groupby(
+                ["scan__datetime", "frequency", "scan__session__name"]
+            ).agg({"intensity": ["mean"]})
+            mean_data_intens.columns = ["intensity_mean"]
+            mean_data = mean_data_intens.reset_index()
+            # sort values so the plot looks better, this has nothing to do with the actual data
+            sorted_mean_data = mean_data.sort_values(by=["frequency", "intensity_mean"])
+            mean_intensity = ((sorted_mean_data['intensity_mean']+sorted_mean_data['intensity_mean'].shift(-1))/2)[::2].reset_index(drop=True)
+            sorted_mean_data.sort_values("frequency", inplace=True,ascending=True)
+            sorted_mean_data.drop_duplicates(subset='frequency',keep='first', inplace=True)
+            sorted_mean_data.reset_index(drop=True,inplace=True)
+            sorted_mean_data['intensity_mean'] = mean_intensity
+    
         # generate the description fro the plot
         txt = f" \
             Your data summary for this plot: \n \
             Receiver : {receivers} \n \
+            Polarization : {polarization} \n \
             Date range : From {start_date.date()} to {end_date.date()} \n \
             Frequency Range : {mean_data['frequency'].min()}MHz to {mean_data['frequency'].max()}MHz "
 
@@ -207,10 +258,10 @@ class Window(QMainWindow, Ui_MainWindow):
         # Create the 2D line plot
         fig, ax = plt.subplots(1, figsize=(9, 4))
         plt.title(txt, fontsize=8)
-        plt.suptitle("Averaged RFI Environment at Green Bank Observatory")
+        plt.suptitle("RFI Environment at the VLA")
         plt.xlabel("Frequency (MHz)")
-        plt.ylabel("Average Intensity (Jy)")
-        plt.ylim(-10, 500)
+        plt.ylabel("Intensity (Jy)")
+        # plt.ylim(-10, 500)
         plt.xlim(start_frequency, end_frequency)
 
         # Create the annotations for RFI, only plot if user selects
@@ -239,7 +290,7 @@ class Window(QMainWindow, Ui_MainWindow):
                     annot = ax.annotate(
                         text=click_rfi["comments"][row],
                         xy=(click_rfi["start"][row] + mid, 0),
-                        xytext=(click_rfi["start"][row] + mid, 300),
+                        xytext=(click_rfi["start"][row] + mid, 5),
                         ha="center",
                         textcoords="data",
                         bbox=dict(boxstyle="round", fc="w"),
@@ -277,8 +328,14 @@ class Window(QMainWindow, Ui_MainWindow):
         mngr.window.setGeometry(459, 0, dx, dy)
         plt.show()
 
-    def make_color_plot(self, data, unique_days, receivers, end_date, start_date):
+    def make_color_plot(self, data, unique_days, receivers, end_date, start_date,polarization):
         # set up the subplots
+
+        if polarization == 'Averaged':
+            data = average_func(data=data)
+        else:
+            pass
+
         number_of_subplots = len(unique_days)
         fig, axes = plt.subplots(number_of_subplots, 1, figsize=(10.5, 7), sharex=True)
         # account for the single day plots
@@ -289,6 +346,7 @@ class Window(QMainWindow, Ui_MainWindow):
         txt = f" \
             Your data summary for this plot: \n \
             Receiver : {receivers} \n \
+            Polarization : {polarization} \n \
             Date range : From {start_date.date()} to {end_date.date()} \n \
             Frequency Range : {data['frequency'].min()}MHz to {data['frequency'].max()}MHz "
 
@@ -334,11 +392,16 @@ class Window(QMainWindow, Ui_MainWindow):
                     pd.cut(unique_date_range.frequency, freq_bins),
                 ]
             )
+            if polarization == 'Averaged':
+                timeseries_rfi = df_rfi_grouped2.max().intensity_mean
+                print(timeseries_rfi)
 
-            timeseries_rfi = df_rfi_grouped2.max().intensity
+            else:
+                timeseries_rfi = df_rfi_grouped2.max().intensity
 
             im = ax.imshow(
-                np.log10(timeseries_rfi.unstack()),
+                # np.log10(timeseries_rfi.unstack()),
+                timeseries_rfi.unstack(),
                 origin="lower",
                 aspect="auto",
                 # there is only one date of interest per subplot so date extents are to artifically expanded
@@ -368,8 +431,8 @@ class Window(QMainWindow, Ui_MainWindow):
         # set labels
         fig.text(0.5, 0.04, "Frequency (MHz)", ha="center")
         fig.text(0.01, 0.5, "Session Dates (UTC)", va="center", rotation="vertical")
-        cbar.set_label("log(flux) [Jy]")
-        plt.suptitle("RFI Environment at Green Bank Observatory per Session")
+        cbar.set_label("Flux [Jy]")
+        plt.suptitle("RFI Environment at the VLA per Session")
 
         # settign the location of the window
         mngr = plt.get_current_fig_manager()
@@ -424,15 +487,16 @@ class Window(QMainWindow, Ui_MainWindow):
         self.plot_button.repaint()
 
         rcvrs_dict = {
-            "Prime Focus 1": "Prime Focus 1",
-            "L-band": "Rcvr1_2",
-            "S-band": "Rcvr2_3",
-            "C-band": "Rcvr4_6",
-            "X-band": "Rcvr8_10",
-            "Ku-band": "Rcvr12_18",
-            "K-band FPA": "RcvrArray18_26",
-            "Ka-band": "Rcvr26_40",
-            "Q-band": "Rcvr40_52",
+            "L-band": "L_Band_Reciever",
+            "S-band": "S_Band_Reciever",
+            "C-band": "C_Band_Reciever",
+            "X-band": "X_Band_Reciever",
+            "K-band": "K_Band_Reciever",
+            "P-band": "P_Band_Reciever",
+            "A-band": "A_Band_Reciever",
+            "Q-band": "Q_Band_Reciever",
+            "Ku-band": "U_Band_Reciever",
+
         }
 
         receivers_band = [i.text() for i in self.receivers.selectedItems()]
@@ -442,7 +506,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         # account for the user not selecting a rcvr
         if len(receivers) == 0:
-            receivers = ["Prime Focus 1"]
+            receivers = ["L_Band_Reciever"]
 
         end_date = self.end_date.dateTime().toPyDateTime().replace(tzinfo=pytz.UTC)
         start_date = self.start_date.dateTime().toPyDateTime().replace(tzinfo=pytz.UTC)
@@ -459,12 +523,15 @@ class Window(QMainWindow, Ui_MainWindow):
             end_frequency = None
             self.end_frequency.setText("")
 
+        pol = self.polarization.currentText()
+
         self.do_plot(
             receivers=receivers,
             end_date=end_date,
             start_date=start_date,
             start_frequency=start_frequency,
             end_frequency=end_frequency,
+            polarization=pol
         )
 
         # change the color so the user knows that it is done plotting
