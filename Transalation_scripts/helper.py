@@ -77,7 +77,7 @@ def txt_to_df(file):
     year,month,day,hr,min,sec = extract_datetime(df)
 
     for i,k in enumerate(df['OBS. DATE']):
-        df['OBS. DATE'][i] = f'{year}-{month}-{day}'
+        df['OBS. DATE'][i] = pd.to_datetime(f'{year}-{month}-{day}')
         df['Time of record'] = f'{hr}:{min}:{sec}'
     
     print('Done Creating Dataframe')
