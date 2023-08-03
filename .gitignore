@@ -10,3 +10,5 @@ RFI_VLA_Sample_Merged
 gbt_rfi_gui/RFI_GUI_og.ui
 rfi/models_backup.py
 docs
+requirements.txt
+requirements.in
