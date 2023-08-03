@@ -45,7 +45,7 @@ try:
             f"(use {_env_file_template_path} as a template), "
             f"or specify another path via the ENV_PATH variable (currently {_env_path_explain})"
         )
-    environ.Env.read_env(_env_file_path)
+    environ.Env.read_env(str(_env_file_path))
 except PermissionError as error:
     raise PermissionError(
         f"You do not have permission to read {_env_file_path}. Please contact gbosdd@nrao.edu"
