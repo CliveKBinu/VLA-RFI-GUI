@@ -3,13 +3,13 @@ import os
 from helper import *
 
 bands = ['A','C','K','L','P','Q','S','U','X']
-folders = glob.glob(f'/Users/clive/codes/NRAO/VLA_RFI_GUI_NEW/gui/RFI_VLA_Sample/*')
+folders = glob.glob(f'RFI_VLA_Sample/*')
 
 for folder in folders:
     date = folder.split('/')[-1]
     print(date)
     for band in bands:
-        file_path = f'/Users/clive/codes/NRAO/VLA_RFI_GUI_NEW/gui/RFI_VLA_Sample_Merged/{band}_RR_merged_{date}.csv'
+        file_path = f'RFI_VLA_Sample_Merged/{band}_RR_merged_{date}.csv'
 
         if not os.path.exists(file_path):
             files = glob.glob(f'{folder}/{band}*')
@@ -38,10 +38,10 @@ for folder in folders:
 
             merged_df_sorted_LL = merged_df_LL.sort_values('Ampl(Jy)', ascending=False).drop_duplicates('Frequency').sort_index()
             merged_df_sorted_LL = merged_df_sorted_LL.sort_values('Frequency')
-            merged_df_sorted_LL.to_csv(f'/Users/clive/codes/NRAO/VLA_RFI_GUI_NEW/gui/RFI_VLA_Sample_Merged/{band}_LL_merged_{date}.csv')
+            merged_df_sorted_LL.to_csv(f'RFI_VLA_Sample_Merged/{band}_LL_merged_{date}.csv')
 
             merged_df_sorted_RR = merged_df_RR.sort_values('Ampl(Jy)', ascending=False).drop_duplicates('Frequency').sort_index()
             merged_df_sorted_RR = merged_df_sorted_RR.sort_values('Frequency')
-            merged_df_sorted_RR.to_csv(f'/Users/clive/codes/NRAO/VLA_RFI_GUI_NEW/gui/RFI_VLA_Sample_Merged/{band}_RR_merged_{date}.csv')
+            merged_df_sorted_RR.to_csv(f'RFI_VLA_Sample_Merged/{band}_RR_merged_{date}.csv')
         else:
             print(f'File:{band}_RR/LL_merged_{date}.csv already exist')

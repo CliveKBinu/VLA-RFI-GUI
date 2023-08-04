@@ -2,7 +2,7 @@
 from helper import *
 import os
 from astropy.time import Time
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'gbt_rfi.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rfi_query.settings')
 from django.core.wsgi import get_wsgi_application
 os.environ["DJANGO_ALLOW_ASYNC_UNSAFE"] = "true"
 application = get_wsgi_application()
@@ -11,7 +11,7 @@ import glob
 # Frequency,Source,Polarization,File,Project,FrequencyType,Session
 
 print('Creating Dataframe')
-f_path = '/Users/clive/codes/NRAO/VLA_RFI_GUI_NEW/gui/RFI_VLA_Sample_Merged'
+f_path = 'Transalation_scripts/RFI_VLA_Sample_Merged'
 files = glob.glob(f'{f_path}/*')
 #%%
 files = sorted(files,key=lambda x: f"{x.split('/')[-1].split('_')[-2]}_{x.split('/')[-1].split('_')[-1].split('.')[0]}")
